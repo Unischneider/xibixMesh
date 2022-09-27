@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ViewSpotFinder:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/ViewSpotFinder_jar</output-path>
+    <root id="archive" name="ViewSpotFinder.jar">
+      <element id="module-output" name="ViewSpotFinder" />
+    </root>
+  </artifact>
+</component>
