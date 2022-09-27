@@ -56,6 +56,7 @@ public class ViewSpotFinder {
     }
 
     public static void main(String[] args) {
+        long startTime = System.nanoTime();
         if (args.length != 2) {
             System.err.println("Wrong number of arguments.");
             return;
@@ -68,15 +69,17 @@ public class ViewSpotFinder {
             return;
         }
         parseFile(filename);
-        System.out.println(mesh);
+        long startTime2 = System.nanoTime();
         sortNeighborHoods();
-        localMeshes.stream().forEach(mesh1 -> {
-            System.out.println("This is a new Neighborhood");
-            mesh1.getElements().stream().forEach(element -> System.out.println(element.getId()));
-        });
         System.out.println("Number of neighborhoods: " + localMeshes.size());
         ArrayList<Value> result = getNHighestOfNeighorhood(nrSpots);
+        long endTime2 = System.nanoTime() - startTime;
+        double seconds2 = (double)endTime2 / 1_000_000_000.0;
+        System.out.println(seconds2);
         System.out.println("The highest values are: " + result.size());
-        result.forEach(value -> System.out.println(value));
+//        result.forEach(value -> System.out.println(value));
+        long endTime = System.nanoTime() - startTime;
+        double seconds = (double)endTime / 1_000_000_000.0;
+        System.out.println(seconds);
     }
 }
