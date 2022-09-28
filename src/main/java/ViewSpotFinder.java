@@ -28,40 +28,42 @@ public class ViewSpotFinder {
         valueLookup = new HashMap<>();
         mesh.getValues().forEach(value -> valueLookup.put(value.getElement_id(), value.getValue()));
         mesh.getNodes()
-                .forEach(node -> locations.add(new Location(mesh.getElements().stream()
-                        .filter(element -> element.getNodes().contains(node.getId()))
-                        .map(element -> element.getId())
-                        .collect(Collectors
-                                .toCollection(ArrayList::new)))));
+                .forEach(node -> {
+                    Location loc = new Location(mesh.getElements().stream()
+                            .filter(element -> element.getNodes().contains(node.getId()))
+                            .map(element -> element.getId())
+                            .collect(Collectors
+                                    .toCollection(ArrayList::new)));
+                    if (!loc.elementIds.isEmpty())
+                        locations.add(loc);
+                });
     }
 
-    private static ArrayList<Value> getHighestViewPointsOfLocation(int nrOfSpots){
+    private static ArrayList<Value> getHighestViewPointsOfLocation(int nrOfSpots) {
         ArrayList<Value> result = new ArrayList<>();
         locations.forEach(location -> {
             int id = Collections.max(location.elementIds, (element1, element2) -> Double.compare(valueLookup.get(element1), valueLookup.get(element2)));
             result.add(new Value(id, valueLookup.get(id)));
         });
-        result.sort((value1, value2) -> Double.compare(value2.getValue(),value1.getValue()));
+        result.sort((value1, value2) -> Double.compare(value2.getValue(), value1.getValue()));
         return result.stream().limit(nrOfSpots).collect(Collectors
                 .toCollection(ArrayList::new));
     }
 
     public static void main(String[] args) {
-        long startTime = System.nanoTime();
+//        long startTime = System.nanoTime();
         if (args.length != 2) {
             System.err.println("Wrong number of arguments.");
             return;
         }
-
         String filename = args[0];
         int nrSpots = Integer.valueOf(args[1]);
         if (nrSpots <= 0) {
             System.out.println(0);
             return;
         }
-
         parseFile(filename);
-        if(mesh == null || mesh.getElements().isEmpty()){
+        if (mesh == null || mesh.getElements().isEmpty()) {
             System.err.println("No input");
             return;
         }
@@ -76,8 +78,8 @@ public class ViewSpotFinder {
 //        System.out.println("[");
 //        result.forEach(value -> System.out.println(value));
 //        System.out.println("]");
-        long endTime = System.nanoTime() - startTime;
-        double seconds = (double)endTime / 1_000_000_000.0;
-        System.out.println(seconds);
+//        long endTime = System.nanoTime() - startTime;
+//        double seconds = (double) endTime / 1_000_000_000.0;
+//        System.out.println(seconds);
     }
 }
