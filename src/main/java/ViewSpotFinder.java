@@ -38,7 +38,6 @@ public class ViewSpotFinder {
 
     private static ArrayList<Value> getHighestOfNeighborhood(int nrOfSpots){
         ArrayList<Value> result = new ArrayList<>();
-
         localNeighborhood.forEach(neighborhood -> {
             int id = Collections.max(neighborhood.elementIds, (element1, element2) -> Double.compare(valueLookup.get(element1), valueLookup.get(element2)));
             result.add(new Value(id, valueLookup.get(id)));
@@ -46,7 +45,6 @@ public class ViewSpotFinder {
         result.sort((value1, value2) -> Double.compare(value2.getValue(),value1.getValue()));
         return result.stream().limit(nrOfSpots).collect(Collectors
                 .toCollection(ArrayList::new));
-//        return result;
     }
 
     public static void main(String[] args) {
@@ -68,19 +66,17 @@ public class ViewSpotFinder {
             System.err.println("No input");
             return;
         }
-        long startTime2 = System.nanoTime();
+//        long startTime2 = System.nanoTime();
         sortNeighborHoodsHM();
-        System.out.println("Number of neighborhoods: " + localNeighborhood.size());
         ArrayList<Value> result = getHighestOfNeighborhood(nrSpots);
-        long endTime2 = System.nanoTime() - startTime2;
-        double seconds2 = (double)endTime2 / 1_000_000_000.0;
-        System.out.println(seconds2);
-        System.out.println("The highest values are: " + result.size());
+//        long endTime2 = System.nanoTime() - startTime2;
+//        double seconds2 = (double)endTime2 / 1_000_000_000.0;
+//        System.out.println(seconds2);
         System.out.println("[");
         result.forEach(value -> System.out.println(value));
         System.out.println("]");
-        long endTime = System.nanoTime() - startTime;
-        double seconds = (double)endTime / 1_000_000_000.0;
-        System.out.println(seconds);
+//        long endTime = System.nanoTime() - startTime;
+//        double seconds = (double)endTime / 1_000_000_000.0;
+//        System.out.println(seconds);
     }
 }
