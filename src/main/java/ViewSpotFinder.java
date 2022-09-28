@@ -72,11 +72,13 @@ public class ViewSpotFinder {
 //        long endTime2 = System.nanoTime() - startTime2;
 //        double seconds2 = (double)endTime2 / 1_000_000_000.0;
 //        System.out.println(seconds2);
-        System.out.println("[");
-        result.forEach(value -> System.out.println(value));
-        System.out.println("]");
-//        long endTime = System.nanoTime() - startTime;
-//        double seconds = (double)endTime / 1_000_000_000.0;
-//        System.out.println(seconds);
+        String json = new Gson().toJson(result); // not sure if this or the lower part is expected
+        System.out.println(json);
+//        System.out.println("[");
+//        result.forEach(value -> System.out.println(value));
+//        System.out.println("]");
+        long endTime = System.nanoTime() - startTime;
+        double seconds = (double)endTime / 1_000_000_000.0;
+        System.out.println(seconds);
     }
 }
