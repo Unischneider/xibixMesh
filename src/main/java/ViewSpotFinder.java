@@ -6,11 +6,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ViewSpotFinder {
     private static Mesh mesh;
-    private static ArrayList<Neighborhood> localNeighborhood;
+    private static ArrayList<Location> locations;
     private static HashMap<Integer, Double> valueLookup;
 
     private static void parseFile(String filepath) {
@@ -24,22 +23,22 @@ public class ViewSpotFinder {
         }
     }
 
-    private static void sortNeighborHoodsHM() {
-        localNeighborhood = new ArrayList<>();
+    private static void splitMeshIntoLocations() {
+        locations = new ArrayList<>();
         valueLookup = new HashMap<>();
         mesh.getValues().forEach(value -> valueLookup.put(value.getElement_id(), value.getValue()));
         mesh.getNodes()
-                .forEach(node -> localNeighborhood.add(new Neighborhood(mesh.getElements().stream()
+                .forEach(node -> locations.add(new Location(mesh.getElements().stream()
                         .filter(element -> element.getNodes().contains(node.getId()))
                         .map(element -> element.getId())
                         .collect(Collectors
                                 .toCollection(ArrayList::new)))));
     }
 
-    private static ArrayList<Value> getHighestOfNeighborhood(int nrOfSpots){
+    private static ArrayList<Value> getHighestViewPointsOfLocation(int nrOfSpots){
         ArrayList<Value> result = new ArrayList<>();
-        localNeighborhood.forEach(neighborhood -> {
-            int id = Collections.max(neighborhood.elementIds, (element1, element2) -> Double.compare(valueLookup.get(element1), valueLookup.get(element2)));
+        locations.forEach(location -> {
+            int id = Collections.max(location.elementIds, (element1, element2) -> Double.compare(valueLookup.get(element1), valueLookup.get(element2)));
             result.add(new Value(id, valueLookup.get(id)));
         });
         result.sort((value1, value2) -> Double.compare(value2.getValue(),value1.getValue()));
@@ -67,8 +66,8 @@ public class ViewSpotFinder {
             return;
         }
 //        long startTime2 = System.nanoTime();
-        sortNeighborHoodsHM();
-        ArrayList<Value> result = getHighestOfNeighborhood(nrSpots);
+        splitMeshIntoLocations();
+        ArrayList<Value> result = getHighestViewPointsOfLocation(nrSpots);
 //        long endTime2 = System.nanoTime() - startTime2;
 //        double seconds2 = (double)endTime2 / 1_000_000_000.0;
 //        System.out.println(seconds2);
