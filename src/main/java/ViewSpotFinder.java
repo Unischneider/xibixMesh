@@ -4,12 +4,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ViewSpotFinder {
     private static Mesh mesh;
-    private static ArrayList<Mesh> localMeshes;
+    private static ArrayList<Neighborhood> localNeighborhood;
+    private static HashMap<Integer, Double> valueLookup;
 
     private static void parseFile(String filepath) {
         Gson gson = new Gson();
@@ -17,42 +19,34 @@ public class ViewSpotFinder {
             FileReader fr = new FileReader(filepath);
             mesh = gson.fromJson(fr, Mesh.class);
         } catch (IOException e) {
-            System.out.println("why is it not there");
-            System.out.println(filepath);
+            System.err.println(filepath);
             e.printStackTrace();
         }
     }
 
-    private static void sortNeighborHoods() {
-        localMeshes = new ArrayList<Mesh>();
+    private static void sortNeighborHoodsHM() {
+        localNeighborhood = new ArrayList<>();
+        valueLookup = new HashMap<>();
+        mesh.getValues().forEach(value -> valueLookup.put(value.getElement_id(), value.getValue()));
         mesh.getNodes()
-                .forEach(node -> localMeshes.add(new Mesh(mesh.getElements().stream()
+                .forEach(node -> localNeighborhood.add(new Neighborhood(mesh.getElements().stream()
                         .filter(element -> element.getNodes().contains(node.getId()))
+                        .map(element -> element.getId())
                         .collect(Collectors
                                 .toCollection(ArrayList::new)))));
     }
 
-    private static ArrayList<Value> getNHighestOfNeighorhood(int nrOfSpots) {
+    private static ArrayList<Value> getHighestOfNeighborhood(int nrOfSpots){
         ArrayList<Value> result = new ArrayList<>();
-        ArrayList<Mesh> localValues = new ArrayList<>();
 
-        for (int i = 0; i < localMeshes.size(); i++){
-            Mesh neighborhood = localMeshes.get(i);
-            ArrayList<Integer> ids = new ArrayList<>();
-            neighborhood.getElements().forEach(element -> ids.add(element.getId()));
-            ArrayList<Value> values = new ArrayList<>();
-            ids.forEach(id -> values.add(new Value(id, mesh.getValues().stream().filter(value -> value.getElement_id() == id).findFirst().get().getValue())));
-            Mesh valueMesh = new Mesh();
-            valueMesh.setValues(values);
-            localValues.add(valueMesh);
-        }
-
-
-        localValues.forEach(mesh1 -> result.add(Collections.max(mesh1.getValues(), (value1, value2) -> Double.compare(value1.getValue(), value2.getValue()) )));
+        localNeighborhood.forEach(neighborhood -> {
+            int id = Collections.max(neighborhood.elementIds, (element1, element2) -> Double.compare(valueLookup.get(element1), valueLookup.get(element2)));
+            result.add(new Value(id, valueLookup.get(id)));
+        });
         result.sort((value1, value2) -> Double.compare(value2.getValue(),value1.getValue()));
         return result.stream().limit(nrOfSpots).collect(Collectors
                 .toCollection(ArrayList::new));
-//return result;
+//        return result;
     }
 
     public static void main(String[] args) {
@@ -68,16 +62,23 @@ public class ViewSpotFinder {
             System.out.println(0);
             return;
         }
+
         parseFile(filename);
+        if(mesh == null || mesh.getElements().isEmpty()){
+            System.err.println("No input");
+            return;
+        }
         long startTime2 = System.nanoTime();
-        sortNeighborHoods();
-        System.out.println("Number of neighborhoods: " + localMeshes.size());
-        ArrayList<Value> result = getNHighestOfNeighorhood(nrSpots);
-        long endTime2 = System.nanoTime() - startTime;
+        sortNeighborHoodsHM();
+        System.out.println("Number of neighborhoods: " + localNeighborhood.size());
+        ArrayList<Value> result = getHighestOfNeighborhood(nrSpots);
+        long endTime2 = System.nanoTime() - startTime2;
         double seconds2 = (double)endTime2 / 1_000_000_000.0;
         System.out.println(seconds2);
         System.out.println("The highest values are: " + result.size());
-//        result.forEach(value -> System.out.println(value));
+        System.out.println("[");
+        result.forEach(value -> System.out.println(value));
+        System.out.println("]");
         long endTime = System.nanoTime() - startTime;
         double seconds = (double)endTime / 1_000_000_000.0;
         System.out.println(seconds);

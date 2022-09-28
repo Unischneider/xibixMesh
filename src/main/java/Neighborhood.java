@@ -1,5 +1,9 @@
 import java.util.ArrayList;
 
 public class Neighborhood {
-    ArrayList<Value> elementIds;
+    ArrayList<Integer> elementIds;
+
+    public Neighborhood(ArrayList<Integer> elementIds) {
+        this.elementIds = elementIds;
+    }
 }
